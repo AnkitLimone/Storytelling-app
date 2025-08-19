@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Story Generator & Narrator</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-6">
+        <!-- Header Section -->
+        <div class="text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">AI Storyteller</h1>
+            <p class="text-gray-500 mt-2">Enter a topic, and let our AI weave a tale for you.</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="space-y-3">
+             <input type="text" id="topicInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="e.g., 'The Great Wall of China', 'Marie Curie', 'Photosynthesis'">
+        </div>
+
+        <!-- Options Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Story Options -->
+            <div class="space-y-2 bg-gray-50 p-3 rounded-lg border">
+                <h3 class="font-semibold text-gray-700">Story Options</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="languageSelect" class="block text-sm font-medium text-gray-600">Language</label>
+                        <select id="languageSelect" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="French">French</option>
+                            <option value="German">German</option>
+                            <option value="Japanese">Japanese</option>
+                             <option value="Hindi">Hindi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="genreSelect" class="block text-sm font-medium text-gray-600">Genre</label>
+                        <select id="genreSelect" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="Educational">Educational</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Historical">Historical</option>
+                            <option value="Mystery">Mystery</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Voice Options -->
+            <div class="space-y-2 bg-gray-50 p-3 rounded-lg border">
+                <h3 class="font-semibold text-gray-700">Voice Options</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="voiceSelect" class="block text-sm font-medium text-gray-600">Voice</label>
+                        <select id="voiceSelect" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="Puck">Puck (Upbeat)</option>
+                            <option value="Kore">Kore (Firm)</option>
+                            <option value="Zephyr">Zephyr (Bright)</option>
+                            <option value="Leda">Leda (Youthful)</option>
+                            <option value="Charon">Charon (Informative)</option>
+                            <option value="Achird">Achird (Friendly)</option>
+                            <option value="Sulafat">Sulafat (Warm)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="speedSelect" class="block text-sm font-medium text-gray-600">Speed</label>
+                        <select id="speedSelect" class="w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="a normal">Normal</option>
+                            <option value="a slow">Slow</option>
+                            <option value="a fast">Fast</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="generateBtn" class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105">
+            Generate Story
+        </button>
+
+        <!-- Loading Indicator -->
+        <div id="loader" class="hidden flex justify-center items-center space-x-2">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+            <span id="loaderText" class="text-gray-600">Generating your story...</span>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message" class="text-center text-red-500 font-medium"></div>
+
+        <!-- Story and Controls Section -->
+        <div id="storyContainer" class="hidden space-y-4">
+            <!-- Story Text -->
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-96 overflow-y-auto">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Your Story</h2>
+                <p id="storyText" class="text-gray-700 leading-relaxed"></p>
+            </div>
+
+            <!-- Audio Controls -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 p-4 bg-gray-100 rounded-lg">
+                 <button id="playBtn" class="bg-green-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
+                    Play
+                </button>
+                <button id="pauseBtn" class="bg-yellow-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-yellow-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1H8zm3 0a1 1 0 00-1 1v4a1 1 0 001 1h1a1 1 0 001-1V8a1 1 0 00-1-1h-1z" clip-rule="evenodd" /></svg>
+                    Pause
+                </button>
+                <button id="stopBtn" class="bg-red-500 text-white font-semibold py-2 px-5 rounded-lg hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 9a1 1 0 00-1 1v1a1 1 0 001 1h4a1 1 0 001-1v-1a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>
+                    Stop
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const topicInput = document.getElementById('topicInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const loader = document.getElementById('loader');
+        const loaderText = document.getElementById('loaderText');
+        const messageEl = document.getElementById('message');
+        const storyContainer = document.getElementById('storyContainer');
+        const storyTextEl = document.getElementById('storyText');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        // New option elements
+        const languageSelect = document.getElementById('languageSelect');
+        const genreSelect = document.getElementById('genreSelect');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const speedSelect = document.getElementById('speedSelect');
+
+        // --- App State ---
+        let currentStory = '';
+        let audioElement = new Audio();
+        let audioUrl = null;
+
+        // --- Initial State ---
+        function setInitialState() {
+            pauseBtn.disabled = true;
+            stopBtn.disabled = true;
+            playBtn.disabled = true;
+            storyContainer.classList.add('hidden');
+            loader.classList.add('hidden');
+            messageEl.textContent = '';
+            if (audioUrl) {
+                URL.revokeObjectURL(audioUrl);
+                audioUrl = null;
+            }
+            audioElement.src = '';
+        }
+        setInitialState();
+
+        // --- Event Listeners ---
+        generateBtn.addEventListener('click', handleGenerateStory);
+        playBtn.addEventListener('click', handlePlay);
+        pauseBtn.addEventListener('click', handlePause);
+        stopBtn.addEventListener('click', handleStop);
+
+        // Audio element events
+        audioElement.onplay = () => { playBtn.disabled = true; pauseBtn.disabled = false; };
+        audioElement.onpause = () => { playBtn.disabled = false; pauseBtn.disabled = true; };
+        audioElement.onended = () => {
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            stopBtn.disabled = true;
+            audioElement.currentTime = 0;
+        };
+        audioElement.oncanplaythrough = () => {
+            playBtn.disabled = false;
+            loader.classList.add('hidden');
+        };
+
+        // --- Core Functions ---
+        async function handleGenerateStory() {
+            const topic = topicInput.value.trim();
+            if (!topic) {
+                showMessage("Please enter a topic.");
+                return;
+            }
+
+            setInitialState();
+            loader.classList.remove('hidden');
+            loaderText.textContent = 'Generating your story...';
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+
+            const language = languageSelect.value;
+            const genre = genreSelect.value;
+            
+            const prompt = `Tell me a short, engaging story in ${language} about "${topic}". The story should be in the ${genre} genre. The story should be easy to understand and suitable for a general audience.`;
+
+            try {
+                const story = await generateContentWithRetry(prompt, 'gemini-2.5-flash-preview-05-20:generateContent');
+                currentStory = story;
+                displayStory(story);
+                await generateAndLoadAudio(story);
+            } catch (error) {
+                console.error("Error generating story:", error);
+                showMessage("Sorry, something went wrong. Please try again.");
+                loader.classList.add('hidden');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Story';
+            }
+        }
+        
+        async function generateAndLoadAudio(textToSpeak) {
+            loader.classList.remove('hidden');
+            loaderText.textContent = 'Narrating your story...';
+            playBtn.disabled = true;
+
+            const voice = voiceSelect.value;
+            const speed = speedSelect.value;
+            const audioPrompt = `Say the following in ${speed} pace: ${textToSpeak}`;
+
+            try {
+                const apiResponse = await generateContentWithRetry(audioPrompt, 'gemini-2.5-flash-preview-tts:generateContent', true, voice);
+                const audioData = apiResponse.audioData;
+                const mimeType = apiResponse.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, 1, sampleRate);
+                    audioUrl = URL.createObjectURL(wavBlob);
+                    audioElement.src = audioUrl;
+                } else {
+                    throw new Error("Invalid audio data received.");
+                }
+            } catch (error) {
+                console.error("Error generating audio:", error);
+                showMessage("Could not generate audio for the story.");
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function generateContentWithRetry(prompt, modelEndpoint, isAudio = false, voiceName = 'Puck', maxRetries = 3) {
+            const apiKey = "AIzaSyCMrs33sqr9EqfG2G85D8X2eiBMX0iWZWM";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelEndpoint}?key=${apiKey}`;
+            
+            let payload;
+            if (isAudio) {
+                payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: voiceName }
+                            }
+                        }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+            } else {
+                payload = { contents: [{ parts: [{ text: prompt }] }] };
+            }
+
+            let attempt = 0;
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const result = await response.json();
+
+                    if (!result.candidates || result.candidates.length === 0) throw new Error("No candidates in response.");
+                    const part = result.candidates[0].content.parts[0];
+
+                    if (isAudio) {
+                        if (!part.inlineData) throw new Error("Audio data missing in response.");
+                        return { audioData: part.inlineData.data, mimeType: part.inlineData.mimeType };
+                    } else {
+                        if (!part.text) throw new Error("Text data missing in response.");
+                        return part.text;
+                    }
+                } catch (error) {
+                    attempt++;
+                    if (attempt >= maxRetries) throw error;
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+                }
+            }
+        }
+
+        function displayStory(story) {
+            storyTextEl.innerText = story;
+            storyContainer.classList.remove('hidden');
+        }
+
+        function showMessage(msg) {
+            messageEl.textContent = msg;
+        }
+
+        // --- Audio Control Handlers ---
+        function handlePlay() { audioElement.play(); }
+        function handlePause() { audioElement.pause(); }
+        function handleStop() {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            stopBtn.disabled = true;
+        }
+
+        // --- Audio Utility Functions ---
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, numChannels, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2 * numChannels, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.length * 2, true);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+    </script>
+</body>
+</html>
